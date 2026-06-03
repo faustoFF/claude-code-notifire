@@ -112,6 +112,8 @@ def main():
     session_id = event.get("session_id") or ""
     engines = _resolve_engines(config)
 
+    state.prune()  # runs on every hook, so cleanup never depends on a clean Stop
+
     if hook == "PermissionRequest":
         _dismiss_pending(session_id, config)  # the previous request is now resolved
         payload = build_payload(event, config)
