@@ -29,6 +29,7 @@ class Payload:
     session: str
     summary: str
     body: str
+    session_id: str = ""
 
     @property
     def title(self) -> str:
@@ -37,15 +38,9 @@ class Payload:
         return f"{head} — {self.session}" if self.session else head
 
     def display_lines(self):
-        """Returns the text lines shown below the title.
+        """Returns the plain content lines (summary and/or body).
 
-        When a summary precedes the accompanying text, a divider is glued to
-        the text (same block) so it can never render on its own — it is shown
-        only together with the text that follows it.
+        No decoration: each engine adds its own separators and spacing, since a
+        Windows toast has a tight line budget while Telegram does not.
         """
-        lines = []
-        if self.summary:
-            lines.append(self.summary)
-        if self.body:
-            lines.append(f"{SEPARATOR}\n{self.body}" if lines else self.body)
-        return lines
+        return [line for line in (self.summary, self.body) if line]

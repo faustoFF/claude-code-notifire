@@ -14,5 +14,9 @@ class NotificationEngine(abc.ABC):
         self.config = config or {}
 
     @abc.abstractmethod
-    def send(self, payload: Payload) -> None:
-        """Shows the notification described by ``payload``."""
+    def send(self, payload: Payload):
+        """Shows the notification. Returns a JSON-serializable dismissal handle
+        for transient notifications (so they can be removed later), or ``None``."""
+
+    def dismiss(self, handle) -> None:
+        """Removes a previously shown notification by its handle. No-op by default."""

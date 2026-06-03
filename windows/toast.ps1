@@ -20,7 +20,6 @@ $payload = Get-Content -LiteralPath $PayloadPath -Raw -Encoding UTF8 | ConvertFr
 [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom, ContentType = WindowsRuntime] | Out-Null
 
 $texts = @([System.Security.SecurityElement]::Escape([string]$payload.title))
-$texts += [string][char]0x00A0  # blank line after the title
 foreach ($line in $payload.lines) {
     if ($line) { $texts += [System.Security.SecurityElement]::Escape([string]$line) }
 }
@@ -38,4 +37,6 @@ $xml = New-Object Windows.Data.Xml.Dom.XmlDocument
 $xml.LoadXml($toastXml)
 
 $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
+if ($payload.tag) { $toast.Tag = [string]$payload.tag }
+if ($payload.group) { $toast.Group = [string]$payload.group }
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier([string]$payload.appId).Show($toast)

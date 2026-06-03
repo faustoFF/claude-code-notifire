@@ -15,7 +15,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from ccnotify import permission, transcript  # noqa: E402
+from ccnotify import permission, state, transcript  # noqa: E402
 from ccnotify.config import load_config  # noqa: E402
 from ccnotify.engines import get_engine  # noqa: E402
 from ccnotify.payload import NotifyType, Payload  # noqa: E402
@@ -41,9 +41,10 @@ def build_payload(event, config):
     cwd = event.get("cwd") or os.getcwd()
     directory = os.path.basename(cwd.rstrip("/")) or cwd
     transcript_path = event.get("transcript_path")
+    session_id = event.get("session_id") or ""
     session = (
         (transcript.read_session_title(transcript_path) if transcript_path else None)
-        or _short_id(event.get("session_id"))
+        or _short_id(session_id)
     )
     limit = int(config.get("max_body_chars", 220))
 
@@ -55,7 +56,7 @@ def build_payload(event, config):
         summary = permission.summarize(event.get("tool_name", ""), tool_input)
         description = tool_input.get("description") or ""
         return Payload(NotifyType.PERMISSION, emoji, accent, directory, session,
-                       _clip(summary, limit), _clip(description, limit))
+                       _clip(summary, limit), _clip(description, limit), session_id)
 
     if hook == "Stop":
         if not config["events"].get("finished", True):
@@ -67,9 +68,36 @@ def build_payload(event, config):
         if not body and transcript_path:
             body = transcript.read_last_assistant_text(transcript_path)
         return Payload(NotifyType.FINISHED, emoji, accent, directory, session,
-                       "", _clip(body or "", limit))
+                       "", _clip(body or "", limit), session_id)
 
     return None
+
+
+def _resolve_engines(config):
+    engines = os.environ.get("CCNOTIFY_ENGINE") or config.get("engine", "winrt")
+    return [engines] if isinstance(engines, str) else engines
+
+
+def _dismiss_pending(session_id, config):
+    """Removes the notification(s) recorded for the session (resolved request)."""
+    for name, handle in state.load(session_id).items():
+        try:
+            get_engine(name, config).dismiss(handle)
+        except Exception as error:
+            print(f"[ccnotify] engine {name!r} dismiss error: {error}", file=sys.stderr)
+
+
+def _send(payload, engines, config):
+    """Sends the payload via each engine. Returns ``{engine: handle}``."""
+    handles = {}
+    for name in engines:
+        try:  # never break the hook, and isolate engines from each other
+            handle = get_engine(name, config).send(payload)
+            if handle is not None:
+                handles[name] = handle
+        except Exception as error:
+            print(f"[ccnotify] engine {name!r} error: {error}", file=sys.stderr)
+    return handles
 
 
 def main():
@@ -80,18 +108,25 @@ def main():
         return 0
 
     config = load_config()
-    payload = build_payload(event, config)
-    if payload is None:
+    hook = event.get("hook_event_name")
+    session_id = event.get("session_id") or ""
+    engines = _resolve_engines(config)
+
+    if hook == "PermissionRequest":
+        _dismiss_pending(session_id, config)  # the previous request is now resolved
+        payload = build_payload(event, config)
+        handles = _send(payload, engines, config) if payload is not None else {}
+        state.save(session_id, handles)
         return 0
 
-    engines = os.environ.get("CCNOTIFY_ENGINE") or config.get("engine", "winrt")
-    if isinstance(engines, str):
-        engines = [engines]
-    for name in engines:
-        try:  # never break the hook, and isolate engines from each other
-            get_engine(name, config).send(payload)
-        except Exception as error:
-            print(f"[ccnotify] engine {name!r} error: {error}", file=sys.stderr)
+    if hook == "Stop":
+        _dismiss_pending(session_id, config)  # the turn's last request is resolved
+        state.clear(session_id)
+        payload = build_payload(event, config)
+        if payload is not None:
+            _send(payload, engines, config)
+        return 0
+
     return 0
 
 
