@@ -8,6 +8,82 @@ Each notification shows: an accent emoji (color by type), the working directory
 name, the session title, what exactly is being requested, and Claude's
 accompanying text.
 
+## Installation
+
+The easiest way: paste this prompt into a Claude Code session running in WSL2,
+and Claude will perform the steps below for you:
+
+```text
+Please, install https://raw.githubusercontent.com/faustoff/cc-wsl-to-ps-notify/master/README.md
+```
+
+You can also follow the steps manually. AI agents performing this
+installation: execute the steps exactly as written, do not duplicate hooks
+that are already present, and report the verification output to the user.
+
+1. Clone the repository anywhere inside WSL:
+
+   ```bash
+   git clone https://github.com/faustoff/cc-wsl-to-ps-notify.git ~/cc-wsl-to-ps-notify
+   ```
+
+2. Open `~/.claude/settings.json` (create it if it does not exist) and add the
+   `PermissionRequest` and `Stop` hooks, replacing the path with the actual
+   clone location. If the file already has a `hooks` section, merge these
+   entries into it; skip any entry whose `args` already points to this
+   `notify.py`:
+
+   ```json
+   {
+     "hooks": {
+       "PermissionRequest": [
+         {
+           "matcher": "*",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "python3",
+               "args": ["/home/<user>/cc-wsl-to-ps-notify/notify.py"],
+               "async": true
+             }
+           ]
+         }
+       ],
+       "Stop": [
+         {
+           "hooks": [
+             {
+               "type": "command",
+               "command": "python3",
+               "args": ["/home/<user>/cc-wsl-to-ps-notify/notify.py"],
+               "async": true
+             }
+           ]
+         }
+       ]
+     }
+   }
+   ```
+
+3. Verify the pipeline without showing a real toast (the `console` engine
+   prints the notification to stderr):
+
+   ```bash
+   cd ~/cc-wsl-to-ps-notify
+   echo '{"hook_event_name":"Stop","cwd":"'"$PWD"'","last_assistant_message":"Done."}' \
+     | CCNOTIFY_ENGINE=console python3 notify.py
+   ```
+
+   Expected output:
+
+   ```text
+   [ccnotify] ✅ cc-wsl-to-ps-notify / session
+     Done.
+   ```
+
+4. Restart your Claude Code sessions; verify the hooks are active with the
+   `/hooks` command.
+
 ## How it works
 
 Claude Code hooks run `notify.py` (inside WSL). The script reads the hook event
@@ -111,17 +187,6 @@ Finished response:
 - `python3` inside WSL.
 - Windows PowerShell 5.1+ (ships with Windows).
 
-## Installation
-
-```bash
-./install.sh
-```
-
-The script idempotently adds the `PermissionRequest` and `Stop` hooks to
-`~/.claude/settings.json` with the absolute path to `notify.py` (existing hooks
-are left untouched). Restart your Claude Code sessions afterwards; verify with
-the `/hooks` command.
-
 ## Configuration
 
 Without a config file the built-in defaults are used. To override them, copy
@@ -163,15 +228,3 @@ Keep secrets out of the repository — in `~/.config/cc-wsl-notify/config.json`
   registration — toasts are informational in the current version. A
   SnoreToast-based engine is planned for working buttons.
 - Windows toast text color is not configurable; the emoji carries the color.
-
-## Testing
-
-Dry run without a real toast (the `console` engine prints the payload to
-stderr):
-
-```bash
-echo '{"hook_event_name":"Stop","cwd":"'"$PWD"'","last_assistant_message":"Done."}' \
-  | CCNOTIFY_ENGINE=console python3 notify.py
-```
-
-For a real toast, run the same command without `CCNOTIFY_ENGINE=console`.
