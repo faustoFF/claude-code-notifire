@@ -24,10 +24,11 @@
 
 ## Примеры уведомлений
 
-Состав уведомления единый: заголовок `<эмодзи> <директория> — <сессия>`, строка запроса
+Состав уведомления единый: заголовок `<эмодзи> <директория> / <сессия>`, строка запроса
 и сопровождающий текст. Сопровождающий текст для запроса разрешения — это описание вызова
-(`tool_input.description`, если есть), для завершения — итоговый ответ Claude. Каждый движок
-форматирует один и тот же состав по-своему.
+(`tool_input.description`, если есть), для завершения — итоговый ответ Claude. Текст приходит
+в Markdown, и каждый движок рендерит его по-своему: Telegram — в форматирование (жирный,
+курсив, код, ссылки), тост и console — в чистый текст без маркеров.
 
 ### WinRT (тост)
 
@@ -37,7 +38,7 @@
 Запрос разрешения:
 
 ```text
-🔐 cc-wsl-to-ps-notify — windows-notifications-wsl2
+🔐 cc-wsl-to-ps-notify / windows-notifications-wsl2
 Bash: git status
 Проверить состояние репозитория
 ```
@@ -45,19 +46,21 @@ Bash: git status
 Завершение ответа:
 
 ```text
-✅ cc-wsl-to-ps-notify — windows-notifications-wsl2
+✅ cc-wsl-to-ps-notify / windows-notifications-wsl2
 Готово: добавил Windows-уведомления.
 ```
 
 ### Telegram
 
 Заголовок — жирный (HTML), после него пустая строка; между запросом и сопровождающим
-текстом — разделитель.
+текстом — разделитель. Markdown тела конвертируется в Telegram-HTML (`**жирный**`,
+`*курсив*`, код, блоки кода, ссылки); обрезка по `max_body_chars` не ломает разметку —
+открытые теги корректно закрываются.
 
 Запрос разрешения:
 
 ```text
-🔐 cc-wsl-to-ps-notify — windows-notifications-wsl2
+🔐 cc-wsl-to-ps-notify / windows-notifications-wsl2
 
 Bash: git status
 ──────────
@@ -67,7 +70,7 @@ Bash: git status
 Завершение ответа:
 
 ```text
-✅ cc-wsl-to-ps-notify — windows-notifications-wsl2
+✅ cc-wsl-to-ps-notify / windows-notifications-wsl2
 
 Готово: добавил Windows-уведомления.
 ```

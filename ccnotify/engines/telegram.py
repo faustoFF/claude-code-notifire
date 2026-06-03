@@ -16,6 +16,7 @@ import urllib.parse
 import urllib.request
 
 from ccnotify.engines.base import NotificationEngine
+from ccnotify.markdown import to_telegram_html
 from ccnotify.payload import SEPARATOR, Payload
 
 _API = "https://api.telegram.org/bot{token}/{method}"
@@ -34,11 +35,16 @@ class TelegramEngine(NotificationEngine):
             print("[ccnotify] telegram: bot_token/chat_id not configured", file=sys.stderr)
             return None
 
-        sections = payload.display_lines()
-        if len(sections) == 2:  # divider between "what is requested" and the text
-            sections = [sections[0], SEPARATOR, sections[1]]
+        sections = []
+        if payload.summary:
+            sections.append(html.escape(payload.summary))
+        body_html = to_telegram_html(payload.body, payload.limit)
+        if body_html:
+            if sections:  # divider between "what is requested" and the text
+                sections.append(SEPARATOR)
+            sections.append(body_html)
         title = f"<b>{html.escape(payload.title)}</b>"
-        body = "\n".join(html.escape(line) for line in sections)
+        body = "\n".join(sections)
         text = f"{title}\n\n{body}" if body else title
 
         result = self._call("sendMessage", {

@@ -18,7 +18,9 @@ def summarize(tool_name, tool_input):
     ti = tool_input or {}
 
     if tool_name == "Bash":
-        command = (ti.get("command") or "").strip()
+        command = " ".join((ti.get("command") or "").split())
+        if len(command) > 24:
+            command = command[:23].rstrip() + "…"
         return f"Bash: {command}" if command else "Bash"
 
     if tool_name in ("Edit", "Write", "MultiEdit", "NotebookEdit"):

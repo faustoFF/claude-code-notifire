@@ -56,7 +56,7 @@ def build_payload(event, config):
         summary = permission.summarize(event.get("tool_name", ""), tool_input)
         description = tool_input.get("description") or ""
         return Payload(NotifyType.PERMISSION, emoji, accent, directory, session,
-                       _clip(summary, limit), _clip(description, limit), session_id)
+                       _clip(summary, limit), description, session_id, limit=limit)
 
     if hook == "Stop":
         if not config["events"].get("finished", True):
@@ -68,7 +68,7 @@ def build_payload(event, config):
         if not body and transcript_path:
             body = transcript.read_last_assistant_text(transcript_path)
         return Payload(NotifyType.FINISHED, emoji, accent, directory, session,
-                       "", _clip(body or "", limit), session_id)
+                       "", body or "", session_id, limit=limit)
 
     return None
 
