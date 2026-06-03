@@ -154,16 +154,16 @@ it fits the banner).
 Permission request:
 
 ```text
-🔐 claude-code-notifire / add-telegram-engine
-Bash: git status
-Check the repository state
+🔐 my-app / fix-login-bug
+Bash: npm test
+Run the test suite
 ```
 
 Finished response:
 
 ```text
-✅ claude-code-notifire / add-telegram-engine
-Done: added the Telegram engine.
+✅ my-app / fix-login-bug
+Done: the login bug is fixed.
 ```
 
 ### Telegram
@@ -177,19 +177,19 @@ correctly.
 Permission request:
 
 ```text
-🔐 claude-code-notifire / add-telegram-engine
+🔐 my-app / fix-login-bug
 
-Bash: git status
+Bash: npm test
 ──────────
-Check the repository state
+Run the test suite
 ```
 
 Finished response:
 
 ```text
-✅ claude-code-notifire / add-telegram-engine
+✅ my-app / fix-login-bug
 
-Done: added the Telegram engine.
+Done: the login bug is fixed.
 ```
 
 ### Console (diagnostics)
@@ -199,16 +199,16 @@ Writes to stderr (`NOTIFIRE_ENGINE=console`), for debugging.
 Permission request:
 
 ```text
-[notifire] 🔐 claude-code-notifire — add-telegram-engine
-  Bash: git status
-  Check the repository state
+[notifire] 🔐 my-app — fix-login-bug
+  Bash: npm test
+  Run the test suite
 ```
 
 Finished response:
 
 ```text
-[notifire] ✅ claude-code-notifire — add-telegram-engine
-  Done: added the Telegram engine.
+[notifire] ✅ my-app — fix-login-bug
+  Done: the login bug is fixed.
 ```
 
 ## Requirements
