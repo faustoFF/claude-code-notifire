@@ -163,7 +163,7 @@ Finished response:
 
 ```text
 ✅ claude-code-notifire / add-telegram-engine
-Done: added Windows notifications.
+Done: added the Telegram engine.
 ```
 
 ### Telegram
@@ -189,7 +189,7 @@ Finished response:
 ```text
 ✅ claude-code-notifire / add-telegram-engine
 
-Done: added Windows notifications.
+Done: added the Telegram engine.
 ```
 
 ### Console (diagnostics)
@@ -208,7 +208,7 @@ Finished response:
 
 ```text
 [notifire] ✅ claude-code-notifire — add-telegram-engine
-  Done: added Windows notifications.
+  Done: added the Telegram engine.
 ```
 
 ## Requirements
