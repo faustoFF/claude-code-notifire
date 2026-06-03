@@ -16,6 +16,17 @@ Each notification shows: an accent emoji (color by type), the working directory
 name, the session title, what exactly is being requested, and Claude's
 accompanying text.
 
+## Requirements
+
+- `python3` on the machine where Claude Code runs.
+
+Per engine:
+
+- **WinRT**: WSL2 with working Windows interop (`powershell.exe` reachable
+  from WSL) and Windows PowerShell 5.1+ (ships with Windows).
+- **Telegram**: a bot token (from [@BotFather](https://t.me/BotFather)) and a
+  chat id. No WSL or Windows required.
+
 ## Installation
 
 The easiest way: paste this prompt into a Claude Code session, and Claude will
@@ -112,6 +123,33 @@ user.
 
 5. Restart your Claude Code sessions; verify the hooks are active with the
    `/hooks` command.
+
+## Configuration
+
+Without a config file the built-in defaults are used. To override them, copy
+`config.example.json` to one of these locations (in priority order):
+
+1. the path from the `NOTIFIRE_CONFIG` environment variable;
+2. `~/.config/claude-code-notifire/config.json`;
+3. `config.json` in the repository root.
+
+Fields: `engine` (string or list), `events` (enable/disable types), `types`
+(emoji/accent), `winrt.app_id`, `winrt.sound`, `telegram.bot_token`,
+`telegram.chat_id`.
+
+By default toasts are attributed to "Windows PowerShell" (the PowerShell
+AUMID). Branding them as "Claude Code" requires a separate shortcut with its
+own AppUserModelID, whose path goes into `winrt.app_id`.
+
+### Telegram
+
+Enabled via `engine`: `"telegram"` (Telegram only) or `["winrt", "telegram"]`
+(toast and Telegram together). The bot token and chat id come from
+`telegram.bot_token` / `telegram.chat_id` or from the `TELEGRAM_BOT_TOKEN` /
+`TELEGRAM_CHAT_ID` environment variables.
+
+Keep secrets out of the repository — in `~/.config/claude-code-notifire/config.json`
+(`chmod 600`). `config.json` in the repository root is listed in `.gitignore`.
 
 ## How it works
 
@@ -210,44 +248,6 @@ Finished response:
 [notifire] ✅ my-app — fix-login-bug
   Done: the login bug is fixed.
 ```
-
-## Requirements
-
-- `python3` on the machine where Claude Code runs.
-
-Per engine:
-
-- **WinRT**: WSL2 with working Windows interop (`powershell.exe` reachable
-  from WSL) and Windows PowerShell 5.1+ (ships with Windows).
-- **Telegram**: a bot token (from [@BotFather](https://t.me/BotFather)) and a
-  chat id. No WSL or Windows required.
-
-## Configuration
-
-Without a config file the built-in defaults are used. To override them, copy
-`config.example.json` to one of these locations (in priority order):
-
-1. the path from the `NOTIFIRE_CONFIG` environment variable;
-2. `~/.config/claude-code-notifire/config.json`;
-3. `config.json` in the repository root.
-
-Fields: `engine` (string or list), `events` (enable/disable types), `types`
-(emoji/accent), `winrt.app_id`, `winrt.sound`, `telegram.bot_token`,
-`telegram.chat_id`.
-
-By default toasts are attributed to "Windows PowerShell" (the PowerShell
-AUMID). Branding them as "Claude Code" requires a separate shortcut with its
-own AppUserModelID, whose path goes into `winrt.app_id`.
-
-### Telegram
-
-Enabled via `engine`: `"telegram"` (Telegram only) or `["winrt", "telegram"]`
-(toast and Telegram together). The bot token and chat id come from
-`telegram.bot_token` / `telegram.chat_id` or from the `TELEGRAM_BOT_TOKEN` /
-`TELEGRAM_CHAT_ID` environment variables.
-
-Keep secrets out of the repository — in `~/.config/claude-code-notifire/config.json`
-(`chmod 600`). `config.json` in the repository root is listed in `.gitignore`.
 
 ## Adding a new engine
 
