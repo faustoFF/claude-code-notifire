@@ -26,6 +26,11 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 _TOAST_PS1 = os.path.join(_REPO_ROOT, "windows", "toast.ps1")
 _DISMISS_PS1 = os.path.join(_REPO_ROOT, "windows", "dismiss.ps1")
 _GROUP = "ccnotify"
+_MAX_LINE = 1000  # safety cap: oversized toast XML fails to show at all
+
+
+def _cap(line):
+    return line if len(line) <= _MAX_LINE else line[: _MAX_LINE - 1].rstrip() + "…"
 
 
 def _wslpath_w(path):
@@ -53,7 +58,7 @@ class WinRtEngine(NotificationEngine):
             "appId": self.app_id,
             "sound": self.sound,
             "title": payload.title,
-            "lines": payload.display_lines(),
+            "lines": [_cap(line) for line in payload.display_lines()],
         }
         handle = None
         if payload.type == NotifyType.PERMISSION:

@@ -22,8 +22,8 @@ class Payload:
 
     ``summary`` is the one-line "what is requested" (permission only);
     ``body`` is the accompanying assistant text / final message — raw
-    Markdown, rendered by each engine. ``limit`` caps the visible body
-    length (``0`` — no cap).
+    Markdown, rendered by each engine. Length limits are up to each
+    engine.
     """
 
     type: NotifyType
@@ -34,7 +34,6 @@ class Payload:
     summary: str
     body: str
     session_id: str = ""
-    limit: int = 0
 
     @property
     def title(self) -> str:
@@ -45,9 +44,8 @@ class Payload:
     def display_lines(self):
         """Returns the plain content lines (summary and/or body).
 
-        The body is rendered without Markdown markers and clipped to
-        ``limit``. No decoration: each engine adds its own separators and
-        spacing, since a Windows toast has a tight line budget while Telegram
-        does not.
+        The body is rendered without Markdown markers. No decoration: each
+        engine adds its own separators and spacing, since a Windows toast has
+        a tight line budget while Telegram does not.
         """
-        return [line for line in (self.summary, to_plain(self.body, self.limit)) if line]
+        return [line for line in (self.summary, to_plain(self.body)) if line]

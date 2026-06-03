@@ -54,8 +54,8 @@ Bash: git status
 
 Заголовок — жирный (HTML), после него пустая строка; между запросом и сопровождающим
 текстом — разделитель. Markdown тела конвертируется в Telegram-HTML (`**жирный**`,
-`*курсив*`, код, блоки кода, ссылки); обрезка по `max_body_chars` не ломает разметку —
-открытые теги корректно закрываются.
+`*курсив*`, код, блоки кода, ссылки); обрезка по лимиту длины сообщения Telegram
+не ломает разметку — открытые теги корректно закрываются.
 
 Запрос разрешения:
 
@@ -121,7 +121,7 @@ Bash: git status
 3. `config.json` в корне репозитория.
 
 Поля: `engine` (строка или список), `events` (включение типов), `types` (эмодзи/акцент),
-`max_body_chars`, `winrt.app_id`, `winrt.sound`, `telegram.bot_token`, `telegram.chat_id`.
+`winrt.app_id`, `winrt.sound`, `telegram.bot_token`, `telegram.chat_id`.
 
 По умолчанию тосты подписаны «Windows PowerShell» (AUMID PowerShell). Брендирование
 под «Claude Code» — это отдельный ярлык со своим AppUserModelID, путь к которому

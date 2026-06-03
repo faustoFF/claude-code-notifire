@@ -21,11 +21,6 @@ from ccnotify.engines import get_engine  # noqa: E402
 from ccnotify.payload import NotifyType, Payload  # noqa: E402
 
 
-def _clip(text, limit):
-    text = text or ""
-    return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
-
-
 def _short_id(session_id):
     return session_id[:8] if session_id else "session"
 
@@ -46,8 +41,6 @@ def build_payload(event, config):
         (transcript.read_session_title(transcript_path) if transcript_path else None)
         or _short_id(session_id)
     )
-    limit = int(config.get("max_body_chars", 220))
-
     if hook == "PermissionRequest":
         if not config["events"].get("permission", True):
             return None
@@ -56,7 +49,7 @@ def build_payload(event, config):
         summary = permission.summarize(event.get("tool_name", ""), tool_input)
         description = tool_input.get("description") or ""
         return Payload(NotifyType.PERMISSION, emoji, accent, directory, session,
-                       _clip(summary, limit), description, session_id, limit=limit)
+                       summary, description, session_id)
 
     if hook == "Stop":
         if not config["events"].get("finished", True):
@@ -68,7 +61,7 @@ def build_payload(event, config):
         if not body and transcript_path:
             body = transcript.read_last_assistant_text(transcript_path)
         return Payload(NotifyType.FINISHED, emoji, accent, directory, session,
-                       "", body or "", session_id, limit=limit)
+                       "", body or "", session_id)
 
     return None
 

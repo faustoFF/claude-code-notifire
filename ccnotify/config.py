@@ -19,7 +19,6 @@ DEFAULTS = {
         "permission": {"emoji": "🔐", "accent": "amber"},
         "finished": {"emoji": "✅", "accent": "green"},
     },
-    "max_body_chars": 220,
     "winrt": {"app_id": DEFAULT_APP_ID, "sound": True},
 }
 

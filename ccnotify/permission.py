@@ -12,8 +12,7 @@ def _short_path(path):
 
 
 def _clip(text):
-    """Collapses whitespace and clips the text to 24 chars for compact display."""
-    text = " ".join((text or "").split())
+    """Clips the text to 24 chars for compact display."""
     if len(text) > 24:
         text = text[:23].rstrip() + "…"
     return text
@@ -33,32 +32,34 @@ def _first_text(value):
     return None
 
 
-def summarize(tool_name, tool_input):
-    """Returns a single human-readable line describing the requested tool call."""
-    ti = tool_input or {}
-
+def _fragment(tool_name, ti):
+    """Returns the tool-specific input fragment as a single collapsed line."""
     if tool_name == "Bash":
-        command = _clip(ti.get("command") or "")
-        return f"Bash: {command}" if command else "Bash"
+        return " ".join((ti.get("command") or "").split())
 
-    if tool_name in ("Edit", "Write", "MultiEdit", "NotebookEdit"):
-        path = ti.get("file_path") or ti.get("notebook_path") or ""
-        return f"{tool_name}: {_short_path(path)}" if path else tool_name
-
-    if tool_name == "Read":
-        path = ti.get("file_path") or ""
-        return f"Read: {_short_path(path)}" if path else "Read"
+    if tool_name in ("Edit", "Write", "MultiEdit", "NotebookEdit", "Read"):
+        return _short_path(ti.get("file_path") or ti.get("notebook_path") or "")
 
     if tool_name in ("Glob", "Grep"):
-        pattern = ti.get("pattern") or ""
-        return f"{tool_name}: {pattern}" if pattern else tool_name
+        return ti.get("pattern") or ""
+
+    return " ".join((_first_text(ti) or "").split())
+
+
+def summarize(tool_name, tool_input):
+    """Returns a single human-readable line describing the requested tool call.
+
+    When the input carries a ``description`` (shown as the notification body)
+    the fragment is clipped short; otherwise it is passed in full and the
+    engine decides how much fits.
+    """
+    ti = tool_input or {}
 
     if tool_name.startswith("mcp__"):
         parts = tool_name.split("__")
         return f"{parts[1]}/{'__'.join(parts[2:])}" if len(parts) >= 3 else tool_name
 
-    text = _first_text(ti)
-    if text:
-        return f"{tool_name}: {_clip(text)}"
-
-    return tool_name or "tool"
+    fragment = _fragment(tool_name, ti)
+    if fragment and ti.get("description"):
+        fragment = _clip(fragment)
+    return f"{tool_name}: {fragment}" if fragment else (tool_name or "tool")

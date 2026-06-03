@@ -20,6 +20,7 @@ from ccnotify.markdown import to_telegram_html
 from ccnotify.payload import SEPARATOR, Payload
 
 _API = "https://api.telegram.org/bot{token}/{method}"
+_MAX_VISIBLE = 4000  # Telegram caps at 4096 UTF-16 units; margin covers emoji
 
 
 class TelegramEngine(NotificationEngine):
@@ -35,10 +36,15 @@ class TelegramEngine(NotificationEngine):
             print("[ccnotify] telegram: bot_token/chat_id not configured", file=sys.stderr)
             return None
 
+        budget = _MAX_VISIBLE - len(payload.title) - 2  # title + blank line
         sections = []
-        if payload.summary:
-            sections.append(html.escape(payload.summary))
-        body_html = to_telegram_html(payload.body, payload.limit)
+        summary = payload.summary
+        if summary:
+            if len(summary) > budget:
+                summary = summary[: budget - 1].rstrip() + "…"
+            sections.append(html.escape(summary))
+            budget -= len(summary) + 1 + len(SEPARATOR) + 1
+        body_html = to_telegram_html(payload.body, budget) if budget > 0 else ""
         if body_html:
             if sections:  # divider between "what is requested" and the text
                 sections.append(SEPARATOR)

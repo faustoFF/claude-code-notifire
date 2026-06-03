@@ -5,7 +5,6 @@
     "permission": { "emoji": "🔐", "accent": "amber" },
     "finished": { "emoji": "✅", "accent": "green" }
   },
-  "max_body_chars": 220,
   "winrt": {
     "app_id": "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe",
     "sound": true
