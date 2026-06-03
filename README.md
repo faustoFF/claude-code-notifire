@@ -1,5 +1,7 @@
 # claude-code-notifire
 
+![A Windows toast and a Telegram message sent by claude-code-notifire](docs/banner.png)
+
 Notifications for Claude Code: a notification arrives when a session **stops
 on a permission request** or **finishes its response** — handy when the
 terminal window is minimized or you are away from the machine.
