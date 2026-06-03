@@ -1,4 +1,4 @@
-# cc-wsl-to-ps-notify
+# claude-code-notifire
 
 Notifications for Claude Code: a notification arrives when a session **stops
 on a permission request** or **finishes its response** — handy when the
@@ -20,7 +20,7 @@ The easiest way: paste this prompt into a Claude Code session, and Claude will
 perform the steps below for you:
 
 ```text
-Please, install https://raw.githubusercontent.com/faustoff/cc-wsl-to-ps-notify/master/README.md
+Please, install https://raw.githubusercontent.com/faustoff/claude-code-notifire/master/README.md
 ```
 
 You can also follow the steps manually. AI agents performing this
@@ -34,7 +34,7 @@ user.
    engine that means inside WSL):
 
    ```bash
-   git clone https://github.com/faustoff/cc-wsl-to-ps-notify.git ~/cc-wsl-to-ps-notify
+   git clone https://github.com/faustoff/claude-code-notifire.git ~/claude-code-notifire
    ```
 
 2. Open `~/.claude/settings.json` (create it if it does not exist) and add the
@@ -53,7 +53,7 @@ user.
              {
                "type": "command",
                "command": "python3",
-               "args": ["/home/<user>/cc-wsl-to-ps-notify/notify.py"],
+               "args": ["/home/<user>/claude-code-notifire/notify.py"],
                "async": true
              }
            ]
@@ -65,7 +65,7 @@ user.
              {
                "type": "command",
                "command": "python3",
-               "args": ["/home/<user>/cc-wsl-to-ps-notify/notify.py"],
+               "args": ["/home/<user>/claude-code-notifire/notify.py"],
                "async": true
              }
            ]
@@ -96,7 +96,7 @@ user.
    engine prints it to stderr):
 
    ```bash
-   cd ~/cc-wsl-to-ps-notify
+   cd ~/claude-code-notifire
    echo '{"hook_event_name":"Stop","cwd":"'"$PWD"'","last_assistant_message":"Done."}' \
      | NOTIFIRE_ENGINE=console python3 notify.py
    ```
@@ -104,7 +104,7 @@ user.
    Expected output:
 
    ```text
-   [notifire] ✅ cc-wsl-to-ps-notify / session
+   [notifire] ✅ claude-code-notifire / session
      Done.
    ```
 
@@ -152,7 +152,7 @@ it fits the banner).
 Permission request:
 
 ```text
-🔐 cc-wsl-to-ps-notify / windows-notifications-wsl2
+🔐 claude-code-notifire / add-telegram-engine
 Bash: git status
 Check the repository state
 ```
@@ -160,7 +160,7 @@ Check the repository state
 Finished response:
 
 ```text
-✅ cc-wsl-to-ps-notify / windows-notifications-wsl2
+✅ claude-code-notifire / add-telegram-engine
 Done: added Windows notifications.
 ```
 
@@ -175,7 +175,7 @@ correctly.
 Permission request:
 
 ```text
-🔐 cc-wsl-to-ps-notify / windows-notifications-wsl2
+🔐 claude-code-notifire / add-telegram-engine
 
 Bash: git status
 ──────────
@@ -185,7 +185,7 @@ Check the repository state
 Finished response:
 
 ```text
-✅ cc-wsl-to-ps-notify / windows-notifications-wsl2
+✅ claude-code-notifire / add-telegram-engine
 
 Done: added Windows notifications.
 ```
@@ -197,7 +197,7 @@ Writes to stderr (`NOTIFIRE_ENGINE=console`), for debugging.
 Permission request:
 
 ```text
-[notifire] 🔐 cc-wsl-to-ps-notify — windows-notifications-wsl2
+[notifire] 🔐 claude-code-notifire — add-telegram-engine
   Bash: git status
   Check the repository state
 ```
@@ -205,7 +205,7 @@ Permission request:
 Finished response:
 
 ```text
-[notifire] ✅ cc-wsl-to-ps-notify — windows-notifications-wsl2
+[notifire] ✅ claude-code-notifire — add-telegram-engine
   Done: added Windows notifications.
 ```
 
