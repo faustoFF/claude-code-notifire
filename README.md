@@ -29,12 +29,13 @@ Per engine:
 
 ## Installation
 
-The easiest way: paste this prompt into a Claude Code session, and Claude will
-perform the steps below for you:
-
-```text
-Please, install https://raw.githubusercontent.com/faustoff/claude-code-notifire/master/README.md
-```
+> [!TIP]
+> **The easiest way — let Claude install it for you.** Paste this prompt into
+> a Claude Code session, and Claude will perform all the steps below:
+>
+> ```text
+> Please, install https://raw.githubusercontent.com/faustoff/claude-code-notifire/master/README.md
+> ```
 
 You can also follow the steps manually. AI agents performing this
 installation: first ask the user which engines to enable — `winrt` (Windows
