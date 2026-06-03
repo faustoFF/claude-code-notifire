@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-_DIR = os.path.expanduser(os.environ.get("CCNOTIFY_STATE_DIR") or "~/.cache/cc-wsl-notify")
+_DIR = os.path.expanduser(os.environ.get("NOTIFIRE_STATE_DIR") or "~/.cache/claude-code-notifire")
 
 
 def _path(session_id):

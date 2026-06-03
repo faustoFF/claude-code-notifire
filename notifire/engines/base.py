@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import abc
 
-from ccnotify.payload import Payload
+from notifire.payload import Payload
 
 
 class NotificationEngine(abc.ABC):

@@ -1,8 +1,14 @@
 # cc-wsl-to-ps-notify
 
-Native Windows notifications for Claude Code running in WSL2. A toast pops up
-when a session **stops on a permission request** or **finishes its response** —
-handy when the terminal window is minimized.
+Notifications for Claude Code: a notification arrives when a session **stops
+on a permission request** or **finishes its response** — handy when the
+terminal window is minimized or you are away from the machine.
+
+Notifications are delivered through pluggable engines, used alone or together:
+
+- **WinRT** — a native Windows toast, for Claude Code running in WSL2;
+- **Telegram** — a Bot API message, works wherever Claude Code runs (WSL is
+  not required).
 
 Each notification shows: an accent emoji (color by type), the working directory
 name, the session title, what exactly is being requested, and Claude's
@@ -10,18 +16,22 @@ accompanying text.
 
 ## Installation
 
-The easiest way: paste this prompt into a Claude Code session running in WSL2,
-and Claude will perform the steps below for you:
+The easiest way: paste this prompt into a Claude Code session, and Claude will
+perform the steps below for you:
 
 ```text
 Please, install https://raw.githubusercontent.com/faustoff/cc-wsl-to-ps-notify/master/README.md
 ```
 
 You can also follow the steps manually. AI agents performing this
-installation: execute the steps exactly as written, do not duplicate hooks
-that are already present, and report the verification output to the user.
+installation: first ask the user which engines to enable — `winrt` (Windows
+toast, requires WSL2), `telegram` (requires a bot token and chat id; ask for
+them), or both — then execute the steps exactly as written, do not duplicate
+hooks that are already present, and report the verification output to the
+user.
 
-1. Clone the repository anywhere inside WSL:
+1. Clone the repository on the machine where Claude Code runs (for the WinRT
+   engine that means inside WSL):
 
    ```bash
    git clone https://github.com/faustoff/cc-wsl-to-ps-notify.git ~/cc-wsl-to-ps-notify
@@ -65,30 +75,47 @@ that are already present, and report the verification output to the user.
    }
    ```
 
-3. Verify the pipeline without showing a real toast (the `console` engine
-   prints the notification to stderr):
+3. Pick the engines. The default is `winrt` (Windows toast) — no extra
+   configuration needed, skip this step. For Telegram (alone or together with
+   the toast) create `~/.config/claude-code-notifire/config.json`:
+
+   ```json
+   {
+     "engine": ["winrt", "telegram"],
+     "telegram": {
+       "bot_token": "<token from @BotFather>",
+       "chat_id": "<your chat id>"
+     }
+   }
+   ```
+
+   For Telegram only — without WSL and Windows at all — set
+   `"engine": "telegram"`. Restrict access to the file: `chmod 600`.
+
+4. Verify the pipeline without sending a real notification (the `console`
+   engine prints it to stderr):
 
    ```bash
    cd ~/cc-wsl-to-ps-notify
    echo '{"hook_event_name":"Stop","cwd":"'"$PWD"'","last_assistant_message":"Done."}' \
-     | CCNOTIFY_ENGINE=console python3 notify.py
+     | NOTIFIRE_ENGINE=console python3 notify.py
    ```
 
    Expected output:
 
    ```text
-   [ccnotify] ✅ cc-wsl-to-ps-notify / session
+   [notifire] ✅ cc-wsl-to-ps-notify / session
      Done.
    ```
 
-4. Restart your Claude Code sessions; verify the hooks are active with the
+5. Restart your Claude Code sessions; verify the hooks are active with the
    `/hooks` command.
 
 ## How it works
 
-Claude Code hooks run `notify.py` (inside WSL). The script reads the hook event
-JSON from stdin, builds a normalized payload and shows a notification on the
-Windows side through a pluggable engine.
+Claude Code hooks run `notify.py`. The script reads the hook event JSON from
+stdin, builds a normalized payload and delivers it through the configured
+engines.
 
 | Hook | When | Emoji |
 |---|---|---|
@@ -96,14 +123,15 @@ Windows side through a pluggable engine.
 | `Stop` | Claude finished responding; the body carries the final answer | ✅ |
 
 Available engines: **WinRT** (`windows/toast.ps1` via `powershell.exe`, no
-dependencies, default) and **Telegram** (Bot API). The `engine` field accepts a
-single engine name or a list — with a list the notification goes to all of them
-at once (e.g. a toast on the PC and a Telegram message on the phone).
+dependencies, default; requires WSL2) and **Telegram** (Bot API, standard
+library only; works on any machine). The `engine` field accepts a single
+engine name or a list — with a list the notification goes to all of them at
+once (e.g. a toast on the PC and a Telegram message on the phone).
 
 Permission notifications are dismissed automatically once the request is
 resolved: the next hook (a new `PermissionRequest` or `Stop`) removes the toast
 from the Action Center and deletes the Telegram message. Per-session dismissal
-handles are kept in `~/.cache/cc-wsl-notify`; files older than 7 days are
+handles are kept in `~/.cache/claude-code-notifire`; files older than 7 days are
 pruned automatically.
 
 ## Notification examples
@@ -164,12 +192,12 @@ Done: added Windows notifications.
 
 ### Console (diagnostics)
 
-Writes to stderr (`CCNOTIFY_ENGINE=console`), for debugging.
+Writes to stderr (`NOTIFIRE_ENGINE=console`), for debugging.
 
 Permission request:
 
 ```text
-[ccnotify] 🔐 cc-wsl-to-ps-notify — windows-notifications-wsl2
+[notifire] 🔐 cc-wsl-to-ps-notify — windows-notifications-wsl2
   Bash: git status
   Check the repository state
 ```
@@ -177,23 +205,28 @@ Permission request:
 Finished response:
 
 ```text
-[ccnotify] ✅ cc-wsl-to-ps-notify — windows-notifications-wsl2
+[notifire] ✅ cc-wsl-to-ps-notify — windows-notifications-wsl2
   Done: added Windows notifications.
 ```
 
 ## Requirements
 
-- WSL2 with working Windows interop (`powershell.exe` reachable from WSL).
-- `python3` inside WSL.
-- Windows PowerShell 5.1+ (ships with Windows).
+- `python3` on the machine where Claude Code runs.
+
+Per engine:
+
+- **WinRT**: WSL2 with working Windows interop (`powershell.exe` reachable
+  from WSL) and Windows PowerShell 5.1+ (ships with Windows).
+- **Telegram**: a bot token (from [@BotFather](https://t.me/BotFather)) and a
+  chat id. No WSL or Windows required.
 
 ## Configuration
 
 Without a config file the built-in defaults are used. To override them, copy
 `config.example.json` to one of these locations (in priority order):
 
-1. the path from the `CCNOTIFY_CONFIG` environment variable;
-2. `~/.config/cc-wsl-notify/config.json`;
+1. the path from the `NOTIFIRE_CONFIG` environment variable;
+2. `~/.config/claude-code-notifire/config.json`;
 3. `config.json` in the repository root.
 
 Fields: `engine` (string or list), `events` (enable/disable types), `types`
@@ -211,15 +244,15 @@ Enabled via `engine`: `"telegram"` (Telegram only) or `["winrt", "telegram"]`
 `telegram.bot_token` / `telegram.chat_id` or from the `TELEGRAM_BOT_TOKEN` /
 `TELEGRAM_CHAT_ID` environment variables.
 
-Keep secrets out of the repository — in `~/.config/cc-wsl-notify/config.json`
+Keep secrets out of the repository — in `~/.config/claude-code-notifire/config.json`
 (`chmod 600`). `config.json` in the repository root is listed in `.gitignore`.
 
 ## Adding a new engine
 
-1. Implement `NotificationEngine.send(payload)` in `ccnotify/engines/<name>.py`
-   (see `ccnotify/engines/base.py` and `payload.py`). Override `dismiss(handle)`
+1. Implement `NotificationEngine.send(payload)` in `notifire/engines/<name>.py`
+   (see `notifire/engines/base.py` and `payload.py`). Override `dismiss(handle)`
    if the notification can be removed once the request is resolved.
-2. Register the class in `ccnotify/engines/__init__.py`.
+2. Register the class in `notifire/engines/__init__.py`.
 3. Set `"engine": "<name>"` in the config.
 
 ## Limitations

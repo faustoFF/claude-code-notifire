@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
-from ccnotify.markdown import to_plain
+from notifire.markdown import to_plain
 
 
 SEPARATOR = "─" * 10

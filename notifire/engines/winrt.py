@@ -18,14 +18,14 @@ import subprocess
 import sys
 import tempfile
 
-from ccnotify.config import DEFAULT_APP_ID
-from ccnotify.engines.base import NotificationEngine
-from ccnotify.payload import NotifyType, Payload
+from notifire.config import DEFAULT_APP_ID
+from notifire.engines.base import NotificationEngine
+from notifire.payload import NotifyType, Payload
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _TOAST_PS1 = os.path.join(_REPO_ROOT, "windows", "toast.ps1")
 _DISMISS_PS1 = os.path.join(_REPO_ROOT, "windows", "dismiss.ps1")
-_GROUP = "ccnotify"
+_GROUP = "notifire"
 _MAX_LINE = 1000  # safety cap: oversized toast XML fails to show at all
 
 
@@ -80,7 +80,7 @@ class WinRtEngine(NotificationEngine):
 
     def _run(self, script, data, label):
         """Runs a PowerShell script, passing ``data`` as a temp JSON file."""
-        fd, tmp = tempfile.mkstemp(prefix="ccnotify-", suffix=".json")
+        fd, tmp = tempfile.mkstemp(prefix="notifire-", suffix=".json")
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as fh:
                 json.dump(data, fh, ensure_ascii=False)
@@ -94,7 +94,7 @@ class WinRtEngine(NotificationEngine):
             )
             if result.returncode != 0:
                 err = (result.stderr or result.stdout).strip().splitlines()
-                print(f"[ccnotify] {label} failed: {err[0] if err else result.returncode}",
+                print(f"[notifire] {label} failed: {err[0] if err else result.returncode}",
                       file=sys.stderr)
         finally:
             try:

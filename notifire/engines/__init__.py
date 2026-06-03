@@ -4,9 +4,9 @@ and registering it in ``_REGISTRY``; select it via ``"engine"`` in the config.
 
 from __future__ import annotations
 
-from ccnotify.engines.console import ConsoleEngine
-from ccnotify.engines.telegram import TelegramEngine
-from ccnotify.engines.winrt import WinRtEngine
+from notifire.engines.console import ConsoleEngine
+from notifire.engines.telegram import TelegramEngine
+from notifire.engines.winrt import WinRtEngine
 
 _REGISTRY = {
     "winrt": WinRtEngine,

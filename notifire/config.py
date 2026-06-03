@@ -1,8 +1,8 @@
 """Configuration loading with built-in defaults.
 
 The tool works with no config file at all: :func:`load_config` falls back to
-:data:`DEFAULTS`. A user config may be placed at ``$CCNOTIFY_CONFIG``,
-``~/.config/cc-wsl-notify/config.json`` or ``<repo>/config.json``.
+:data:`DEFAULTS`. A user config may be placed at ``$NOTIFIRE_CONFIG``,
+``~/.config/claude-code-notifire/config.json`` or ``<repo>/config.json``.
 """
 
 from __future__ import annotations
@@ -26,10 +26,10 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def _candidate_paths():
-    env = os.environ.get("CCNOTIFY_CONFIG")
+    env = os.environ.get("NOTIFIRE_CONFIG")
     if env:
         yield env
-    yield os.path.expanduser("~/.config/cc-wsl-notify/config.json")
+    yield os.path.expanduser("~/.config/claude-code-notifire/config.json")
     yield os.path.join(_REPO_ROOT, "config.json")
 
 

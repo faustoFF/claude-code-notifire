@@ -15,9 +15,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from ccnotify.engines.base import NotificationEngine
-from ccnotify.markdown import to_telegram_html
-from ccnotify.payload import SEPARATOR, Payload
+from notifire.engines.base import NotificationEngine
+from notifire.markdown import to_telegram_html
+from notifire.payload import SEPARATOR, Payload
 
 _API = "https://api.telegram.org/bot{token}/{method}"
 _MAX_VISIBLE = 4000  # Telegram caps at 4096 UTF-16 units; margin covers emoji
@@ -33,7 +33,7 @@ class TelegramEngine(NotificationEngine):
 
     def send(self, payload: Payload):
         if not self.token or not self.chat_id:
-            print("[ccnotify] telegram: bot_token/chat_id not configured", file=sys.stderr)
+            print("[notifire] telegram: bot_token/chat_id not configured", file=sys.stderr)
             return None
 
         budget = _MAX_VISIBLE - len(payload.title) - 2  # title + blank line
@@ -78,7 +78,7 @@ class TelegramEngine(NotificationEngine):
                 return json.load(response)
         except urllib.error.HTTPError as error:
             detail = error.read().decode("utf-8", "replace")[:200]
-            print(f"[ccnotify] telegram {method}: HTTP {error.code} {detail}", file=sys.stderr)
+            print(f"[notifire] telegram {method}: HTTP {error.code} {detail}", file=sys.stderr)
         except Exception as error:
-            print(f"[ccnotify] telegram {method}: {error}", file=sys.stderr)
+            print(f"[notifire] telegram {method}: {error}", file=sys.stderr)
         return None

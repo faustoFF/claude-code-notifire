@@ -15,10 +15,10 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from ccnotify import permission, state, transcript  # noqa: E402
-from ccnotify.config import load_config  # noqa: E402
-from ccnotify.engines import get_engine  # noqa: E402
-from ccnotify.payload import NotifyType, Payload  # noqa: E402
+from notifire import permission, state, transcript  # noqa: E402
+from notifire.config import load_config  # noqa: E402
+from notifire.engines import get_engine  # noqa: E402
+from notifire.payload import NotifyType, Payload  # noqa: E402
 
 
 def _short_id(session_id):
@@ -67,7 +67,7 @@ def build_payload(event, config):
 
 
 def _resolve_engines(config):
-    engines = os.environ.get("CCNOTIFY_ENGINE") or config.get("engine", "winrt")
+    engines = os.environ.get("NOTIFIRE_ENGINE") or config.get("engine", "winrt")
     return [engines] if isinstance(engines, str) else engines
 
 
@@ -77,7 +77,7 @@ def _dismiss_pending(session_id, config):
         try:
             get_engine(name, config).dismiss(handle)
         except Exception as error:
-            print(f"[ccnotify] engine {name!r} dismiss error: {error}", file=sys.stderr)
+            print(f"[notifire] engine {name!r} dismiss error: {error}", file=sys.stderr)
 
 
 def _send(payload, engines, config):
@@ -89,7 +89,7 @@ def _send(payload, engines, config):
             if handle is not None:
                 handles[name] = handle
         except Exception as error:
-            print(f"[ccnotify] engine {name!r} error: {error}", file=sys.stderr)
+            print(f"[notifire] engine {name!r} error: {error}", file=sys.stderr)
     return handles
 
 
