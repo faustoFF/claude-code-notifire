@@ -3,8 +3,10 @@
 .SYNOPSIS
     Shows a native Windows toast from a JSON payload using the WinRT API.
 .DESCRIPTION
-    Reads { appId, sound, title, lines[] } from -PayloadPath and displays a
-    ToastGeneric notification. Compatible with Windows PowerShell 5.1.
+    Reads { appId, sound, soundFile, title, lines[] } from -PayloadPath and
+    displays a ToastGeneric notification. When soundFile is set the toast is
+    silent and the .wav is played via SoundPlayer (independent of the Windows
+    sound scheme). Compatible with Windows PowerShell 5.1.
 #>
 param(
     [Parameter(Mandatory = $true)]
@@ -40,3 +42,7 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
 if ($payload.tag) { $toast.Tag = [string]$payload.tag }
 if ($payload.group) { $toast.Group = [string]$payload.group }
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier([string]$payload.appId).Show($toast)
+
+if ($payload.soundFile) {
+    (New-Object System.Media.SoundPlayer([string]$payload.soundFile)).PlaySync()
+}

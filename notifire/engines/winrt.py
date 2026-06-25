@@ -51,12 +51,17 @@ class WinRtEngine(NotificationEngine):
         super().__init__(config)
         opts = (config or {}).get("winrt", {})
         self.app_id = opts.get("app_id") or DEFAULT_APP_ID
-        self.sound = bool(opts.get("sound", True))
+        sound = opts.get("sound", True)
+        if isinstance(sound, str):
+            self.sound, self.sound_file = False, sound
+        else:
+            self.sound, self.sound_file = bool(sound), None
 
     def send(self, payload: Payload):
         data = {
             "appId": self.app_id,
             "sound": self.sound,
+            "soundFile": self.sound_file,
             "title": payload.title,
             "lines": [_cap(line) for line in payload.display_lines()],
         }
@@ -90,7 +95,7 @@ class WinRtEngine(NotificationEngine):
                     "-File", _wslpath_w(script),
                     "-PayloadPath", _wslpath_w(tmp),
                 ],
-                capture_output=True, text=True, timeout=20, check=False,
+                capture_output=True, text=True, errors="replace", timeout=20, check=False,
             )
             if result.returncode != 0:
                 err = (result.stderr or result.stdout).strip().splitlines()

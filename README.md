@@ -138,6 +138,16 @@ Fields: `engine` (string or list), `events` (enable/disable types), `types`
 (emoji/accent), `winrt.app_id`, `winrt.sound`, `telegram.bot_token`,
 `telegram.chat_id`.
 
+`winrt.sound` accepts three values: `true` (default — the standard Windows
+notification sound, which respects the system sound scheme), `false` (silent),
+or a Windows path to a `.wav` file (e.g.
+`"C:\\Windows\\Media\\Windows Notify.wav"`). With a path the toast is silent and
+the file is played directly, so the sound is heard even when the Windows sound
+scheme is set to "No Sounds" — useful for a sound dedicated to Claude Code only.
+
+A ready-made bell sound is bundled at `sounds/bell.wav`; copy it to a location
+on the Windows filesystem and set `winrt.sound` to that path.
+
 By default toasts are attributed to "Windows PowerShell" (the PowerShell
 AUMID). Branding them as "Claude Code" requires a separate shortcut with its
 own AppUserModelID, whose path goes into `winrt.app_id`.
